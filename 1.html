@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Nearest Restaurant</title>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCXawTYYU4s5ToqZyD2Ti_CXl5ucpPgn0M&callback=initMap" async defer></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		var map;
+		var userMarker;
+		var restaurantMarker;
+
+		function initMap() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function (position) {
+					var userLoc = { lat: position.coords.latitude, lng: position.coords.longitude };
+
+					map = new google.maps.Map(
+						document.getElementById('map'), { zoom: 12, center: userLoc });
+					userMarker = new google.maps.Marker({ position: userLoc, map: map });
+					
+					findNearestRestaurant(position.coords.latitude, position.coords.longitude);
+				});
+			} else {
+				handleLocationError(false, infoWindow, map.getCenter());
+			}
+		}
+
+		function findNearestRestaurant(lat, lng) {
+				console.log(lat, lng)
+				$.get('http://127.0.0.1:8000/restaurant/get_good/', { latitude: lat, longitude: lng }, function (data) {
+					var restaurantLoc = { lat: data.latitude, lng: data.longitude };
+					console.log(data)
+					console.log(restaurantLoc)
+					restaurantMarker = new google.maps.Marker({ position: restaurantLoc, map: map });
+				});
+			}
+
+		function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+			infoWindow.setPosition(pos);
+			infoWindow.setContent(browserHasGeolocation ?
+				'Error: The Geolocation service failed.' :
+				'Error: Your browser doesn\'t support geolocation.');
+			infoWindow.open(map);
+		}
+	</script>
+</head>
+
+<body>
+	<h3>My Google Maps Demo</h3>
+	<!--The div element for the map -->
+	<div id="map" style="height:500px"></div>
+</body>
+
+</html>
